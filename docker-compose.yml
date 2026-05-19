@@ -1,0 +1,9 @@
+services:
+  userdb:
+    image: postgres
+    container_name: userdb
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: userdb
+    ports:
+      - "5432:5432"
