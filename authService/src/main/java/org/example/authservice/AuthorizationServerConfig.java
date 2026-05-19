@@ -6,6 +6,11 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,6 +28,9 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -141,4 +149,33 @@ public class AuthorizationServerConfig {
 //            throw new IllegalStateException(e);
 //        }
 //    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+        OAuth2AuthorizationServerConfigurer authServerConfigurer = new OAuth2AuthorizationServerConfigurer();
+
+        http
+                .securityMatcher(authServerConfigurer.getEndpointsMatcher())
+                .with(authServerConfigurer, c -> c.oidc(Customizer.withDefaults()))
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                        )
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .formLogin(Customizer.withDefaults()); // Visar inloggningssidan
+
+        return http.build();
+    }
 }

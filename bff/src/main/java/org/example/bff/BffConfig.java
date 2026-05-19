@@ -34,7 +34,7 @@ public class BffConfig {
     public RouterFunction<ServerResponse> route1() {
         // /api/test -> http://localhost:8081/api/test
         return route()
-                .GET("/api/test", http())
+                .GET("/api/users", http())
                 .before(uri("http://localhost:8081/"))
                 .filter(tokenRelay())
                 .build();
