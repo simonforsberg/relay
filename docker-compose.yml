@@ -7,3 +7,19 @@ services:
       POSTGRES_DB: userdb
     ports:
       - "5432:5432"
+
+  messagedb:
+    image: postgres
+    container_name: messagedb
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: messagedb
+    ports:
+      - "5433:5432"
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"

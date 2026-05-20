@@ -41,6 +41,18 @@ public class BffConfig {
     }
 
     @Bean
+    public RouterFunction<ServerResponse> messagesRoute() {
+        return route()
+                .path("/api/messages", builder -> builder
+                        .GET("/**", http())
+                        .POST("/**", http())
+                )
+                .before(uri("http://localhost:8082/"))
+                .filter(tokenRelay())
+                .build();
+    }
+
+    @Bean
     public RouterFunction<ServerResponse> route2() {
         // /api/test2 -> http://localhost:8082/api/test
         return route()
