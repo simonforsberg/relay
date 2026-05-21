@@ -1,10 +1,13 @@
 package org.example.messageservice.controller;
 
+import jakarta.validation.Valid;
 import org.example.messageservice.dto.MessageRequest;
 import org.example.messageservice.dto.MessageResponse;
 import org.example.messageservice.service.MessageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +24,13 @@ public class MessageController {
     }
 
     @PostMapping
-    public ResponseEntity<MessageResponse> createMessage(@RequestBody MessageRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(messageService.createMessage(request));
+    public ResponseEntity<MessageResponse> createMessage(
+            @Valid @RequestBody MessageRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        UUID senderId = UUID.fromString(jwt.getSubject());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(messageService.createMessage(request, senderId));
     }
 
     @GetMapping

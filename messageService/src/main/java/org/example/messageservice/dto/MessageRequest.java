@@ -1,11 +1,14 @@
 package org.example.messageservice.dto;
 
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-@Getter
-public class MessageRequest {
-    private String content;
-    private UUID senderId;
+public record MessageRequest(
+        @NotBlank(message = "Content cannot be blank")
+        String content,
+        @NotNull(message = "Sender ID cannot be null")
+        UUID senderId
+) {
 }
