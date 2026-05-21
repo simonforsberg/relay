@@ -1,5 +1,6 @@
 package org.example.bff;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,6 +18,12 @@ import static org.springframework.web.servlet.function.RouterFunctions.route;
 @Configuration
 public class BffConfig {
 
+    @Value("${services.user-service.base-url}")
+    private String userServiceUrl;
+
+    @Value("${services.message-service.base-url}")
+    private String messageServiceUrl;
+
     @Bean
     SecurityFilterChain security(HttpSecurity http) {
         return http
@@ -32,10 +39,9 @@ public class BffConfig {
 
     @Bean
     public RouterFunction<ServerResponse> route1() {
-        // /api/test -> http://localhost:8081/api/test
         return route()
                 .GET("/api/users", http())
-                .before(uri("http://localhost:8081/"))
+                .before(uri(userServiceUrl))
                 .filter(tokenRelay())
                 .build();
     }
@@ -47,7 +53,7 @@ public class BffConfig {
                         .GET("/**", http())
                         .POST("/**", http())
                 )
-                .before(uri("http://localhost:8082/"))
+                .before(uri(messageServiceUrl))
                 .filter(tokenRelay())
                 .build();
     }
