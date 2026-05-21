@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -43,24 +44,40 @@ import java.util.UUID;
 public class AuthorizationServerConfig {
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) {
-        RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+    public RegisteredClientRepository registeredClientRepository(
+            PasswordEncoder passwordEncoder,
+            @Value("${auth.clients.service-client.secret}") String serviceClientSecret
+    ) {
+
+        // Klient 1: För BFF/webbläsare
+        RegisteredClient browserClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway-client")
                 .clientSecret(passwordEncoder.encode("secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://localhost:8080/login/oauth2/code/authservice")
-                .scopes(scopes -> scopes.addAll(
-                        Set.of("user.read", "user.write",
-                                OidcScopes.OPENID,
-                                OidcScopes.PROFILE)))
+                .scopes(scopes -> scopes.addAll(Set.of(
+                        OidcScopes.OPENID,
+                        OidcScopes.PROFILE,
+                        "user.read",
+                        "user.write"
+                )))
                 .tokenSettings(TokenSettings.builder()
                         .reuseRefreshTokens(false) // Rotation för säkerhet
                         .build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(client);
+        // Klient 2: För intern service-to-service
+        RegisteredClient serviceClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("service-client")
+                .clientSecret(passwordEncoder.encode(serviceClientSecret))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("user.read") // Minimal scope
+                .build();
+
+        return new InMemoryRegisteredClientRepository(browserClient, serviceClient);
     }
 
     @Bean
