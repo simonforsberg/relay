@@ -21,7 +21,6 @@ services:
     volumes:
       - messagedb-data:/var/lib/postgresql/data
 
-
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
@@ -30,7 +29,6 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
-      -
 
 volumes:
   userdb-data:

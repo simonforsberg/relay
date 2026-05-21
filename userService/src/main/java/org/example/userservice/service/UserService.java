@@ -23,17 +23,17 @@ public class UserService {
     }
 
     public UserResponse createUser(UserRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("Username already taken: " + request.getUsername());
+        if (userRepository.existsByUsername(request.username())) {
+            throw new IllegalArgumentException("Username already taken: " + request.username());
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already registered: " + request.getEmail());
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("Email already registered: " + request.email());
         }
 
         User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
 
         User saved = userRepository.save(user);
         return toResponse(saved);

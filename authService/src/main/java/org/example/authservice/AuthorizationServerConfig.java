@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -43,9 +44,12 @@ import java.util.UUID;
 public class AuthorizationServerConfig {
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) {
+    public RegisteredClientRepository registeredClientRepository(
+            PasswordEncoder passwordEncoder,
+            @Value("${auth.clients.service-client.secret}") String serviceClientSecret
+    ) {
 
-        // Klient 1: För BFF/webbläsare – interaktiv inloggning
+        // Klient 1: För BFF/webbläsare
         RegisteredClient browserClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway-client")
                 .clientSecret(passwordEncoder.encode("secret"))
@@ -64,10 +68,10 @@ public class AuthorizationServerConfig {
                         .build())
                 .build();
 
-        // Klient 2: För intern service-to-service – ingen användare inblandad
+        // Klient 2: För intern service-to-service
         RegisteredClient serviceClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("service-client")
-                .clientSecret(passwordEncoder.encode("service-secret"))
+                .clientSecret(passwordEncoder.encode(serviceClientSecret))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .scope("user.read") // Minimal scope
