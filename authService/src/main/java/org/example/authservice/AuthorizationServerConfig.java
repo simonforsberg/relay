@@ -44,24 +44,36 @@ public class AuthorizationServerConfig {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) {
-        RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+
+        // Klient 1: För BFF/webbläsare – interaktiv inloggning
+        RegisteredClient browserClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway-client")
                 .clientSecret(passwordEncoder.encode("secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .redirectUri("http://localhost:8080/login/oauth2/code/authservice")
-                .scopes(scopes -> scopes.addAll(
-                        Set.of("user.read", "user.write",
-                                OidcScopes.OPENID,
-                                OidcScopes.PROFILE)))
+                .scopes(scopes -> scopes.addAll(Set.of(
+                        OidcScopes.OPENID,
+                        OidcScopes.PROFILE,
+                        "user.read",
+                        "user.write"
+                )))
                 .tokenSettings(TokenSettings.builder()
                         .reuseRefreshTokens(false) // Rotation för säkerhet
                         .build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(client);
+        // Klient 2: För intern service-to-service – ingen användare inblandad
+        RegisteredClient serviceClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("service-client")
+                .clientSecret(passwordEncoder.encode("service-secret"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("user.read") // Minimal scope
+                .build();
+
+        return new InMemoryRegisteredClientRepository(browserClient, serviceClient);
     }
 
     @Bean
