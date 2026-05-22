@@ -46,7 +46,7 @@ public class MessageController {
     }
 
     @GetMapping("/sender/{senderId}")
-    public ResponseEntity<List<MessageResponse>> getMessagesBySender(@PathVariable UUID senderId) {
+    public ResponseEntity<List<MessageResponse>> getMessagesBySender(@PathVariable String senderId) {
         return ResponseEntity.ok(messageService.findBySenderId(senderId));
     }
 }

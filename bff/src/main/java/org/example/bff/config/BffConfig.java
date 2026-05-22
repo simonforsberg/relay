@@ -23,6 +23,9 @@ public class BffConfig {
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
 
+    @Value("${bff.post-logout-redirect-uri}")
+    private String postLogoutRedirectUri;
+
     @Value("${services.user-service.base-url}")
     private String userServiceUrl;
 
@@ -33,7 +36,7 @@ public class BffConfig {
     SecurityFilterChain security(HttpSecurity http) throws Exception {
         OidcClientInitiatedLogoutSuccessHandler logoutSuccessHandler =
                 new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-        logoutSuccessHandler.setPostLogoutRedirectUri("http://localhost:8080/");
+        logoutSuccessHandler.setPostLogoutRedirectUri(postLogoutRedirectUri);
 
         return http
                 .authorizeHttpRequests(auth -> auth

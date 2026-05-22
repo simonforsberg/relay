@@ -279,22 +279,33 @@
     async function init() {
         try {
             const res = await fetch('/api/users/me');
-            if (res.status === 401 || res.status === 302) {
+            if (res.status === 401 || res.redirected) {
                 window.location.href = '/oauth2/authorization/authservice';
                 return;
             }
+            if (!res.ok) throw new Error(res.status);
             const user = await res.json();
-            currentUser = user.username ?? user.sub ?? user.email ?? 'du';
+            currentUser = user.username ?? user.sub ?? user.email ?? 'unknown';
             document.getElementById('who').textContent = currentUser;
         } catch (e) {
             showError('Could not fetch user: ' + e.message);
+            return;
         }
         await loadMessages();
+    }
+
+    function handleResponse(res) {
+        if (res.status === 401 || res.redirected) {
+            window.location.href = '/oauth2/authorization/authservice';
+            return false;
+        }
+        return true;
     }
 
     async function loadMessages() {
         try {
             const res = await fetch('/api/messages');
+            if (!handleResponse(res)) return;
             if (!res.ok) throw new Error(res.status);
             const messages = await res.json();
             const list = document.getElementById('messages');
@@ -345,6 +356,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: text })
             });
+            if (!handleResponse(res)) return;
             if (!res.ok) throw new Error(res.status);
             const msg = await res.json();
             input.value = '';

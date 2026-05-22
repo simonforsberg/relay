@@ -42,7 +42,7 @@ public class MessageService {
                 .toList();
     }
 
-    public List<MessageResponse> findBySenderId(UUID senderId) {
+    public List<MessageResponse> findBySenderId(String senderId) {
         return messageRepository.findBySenderId(senderId)
                 .stream()
                 .map(this::toResponse)
