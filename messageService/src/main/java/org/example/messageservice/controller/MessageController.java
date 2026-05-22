@@ -28,7 +28,7 @@ public class MessageController {
             @Valid @RequestBody MessageRequest request,
             @AuthenticationPrincipal Jwt jwt) {
 
-        UUID senderId = UUID.fromString(jwt.getSubject());
+        String senderId = jwt.getSubject();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(messageService.createMessage(request, senderId));
     }
@@ -46,7 +46,7 @@ public class MessageController {
     }
 
     @GetMapping("/sender/{senderId}")
-    public ResponseEntity<List<MessageResponse>> getMessagesBySender(@PathVariable UUID senderId) {
+    public ResponseEntity<List<MessageResponse>> getMessagesBySender(@PathVariable String senderId) {
         return ResponseEntity.ok(messageService.findBySenderId(senderId));
     }
 }

@@ -57,6 +57,7 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://localhost:8080/login/oauth2/code/authservice")
+                .postLogoutRedirectUri("http://localhost:8080/")
                 .scopes(scopes -> scopes.addAll(Set.of(
                         OidcScopes.OPENID,
                         OidcScopes.PROFILE,
@@ -89,13 +90,25 @@ public class AuthorizationServerConfig {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails user = User.builder()
+        UserDetails demo = User.builder()
                 .username("demo")
-                .password(passwordEncoder.encode("demo")) // Krypterar "demo" korrekt
+                .password(passwordEncoder.encode("demo"))
                 .roles("USER")
                 .build();
 
-        return new InMemoryUserDetailsManager(user);
+        UserDetails alice = User.builder()
+                .username("alice")
+                .password(passwordEncoder.encode("password123"))
+                .roles("USER")
+                .build();
+
+        UserDetails bob = User.builder()
+                .username("bob")
+                .password(passwordEncoder.encode("password123"))
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(demo, alice, bob);
     }
 
     @Bean

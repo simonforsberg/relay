@@ -23,7 +23,7 @@ public class Message {
     private String content;
 
     @Column(nullable = false)
-    private UUID senderId;
+    private String senderId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
