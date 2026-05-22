@@ -23,7 +23,7 @@ public class MessageService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public MessageResponse createMessage(MessageRequest request, UUID senderId) {
+    public MessageResponse createMessage(MessageRequest request, String senderId) {
         Message message = new Message();
         message.setContent(request.content());
         message.setSenderId(senderId);

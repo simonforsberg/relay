@@ -43,8 +43,9 @@ public class UserService {
         return userRepository.findById(id).map(this::toResponse);
     }
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public Optional<UserResponse> findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(this::toResponse);
     }
 
     public List<UserResponse> findAll() {
