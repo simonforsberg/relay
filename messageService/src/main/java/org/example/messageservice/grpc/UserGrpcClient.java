@@ -1,6 +1,7 @@
 package org.example.messageservice.grpc;
 
 import io.grpc.Metadata;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.grpc.client.GrpcChannelFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -37,17 +39,20 @@ public class UserGrpcClient {
             var stubWithAuth = stub.withInterceptors(
                     MetadataUtils.newAttachHeadersInterceptor(headers)
             );
-
             GetUserByUsernameRequest request = GetUserByUsernameRequest.newBuilder()
                     .setUsername(username)
                     .build();
-
-            UserResponse response = stubWithAuth.getUserByUsername(request);
+            UserResponse response = stubWithAuth
+                    .withDeadlineAfter(2, TimeUnit.SECONDS)
+                    .getUserByUsername(request);
             log.info("gRPC getUserByUsername({}) → {}", username, response.getUsername());
             return Optional.of(response);
         } catch (StatusRuntimeException e) {
-            log.warn("gRPC getUserByUsername({}) failed: {}", username, e.getStatus());
-            return Optional.empty();
+            if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
+                return Optional.empty();
+            }
+            log.error("gRPC getUserByUsername({}) failed: {}", username, e.getStatus(), e);
+            throw e;
         }
     }
 }
