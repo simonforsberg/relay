@@ -3,6 +3,7 @@ package org.example.messageservice.service;
 import org.example.messageservice.config.RabbitMQConfig;
 import org.example.messageservice.dto.MessageRequest;
 import org.example.messageservice.dto.MessageResponse;
+import org.example.messageservice.grpc.UserGrpcClient;
 import org.example.messageservice.model.Message;
 import org.example.messageservice.repository.MessageRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,16 +18,24 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final UserGrpcClient userGrpcClient;
 
-    public MessageService(MessageRepository messageRepository, RabbitTemplate rabbitTemplate) {
+    public MessageService(MessageRepository messageRepository,
+                          RabbitTemplate rabbitTemplate,
+                          UserGrpcClient userGrpcClient) {
         this.messageRepository = messageRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.userGrpcClient = userGrpcClient;
     }
 
     public MessageResponse createMessage(MessageRequest request, String senderId) {
+        String resolvedSender = userGrpcClient.getUserByUsername(senderId)
+                .map(user -> user.getUsername())
+                .orElse(senderId);
+
         Message message = new Message();
         message.setContent(request.content());
-        message.setSenderId(senderId);
+        message.setSenderId(resolvedSender);
 
         Message saved = messageRepository.save(message);
 
