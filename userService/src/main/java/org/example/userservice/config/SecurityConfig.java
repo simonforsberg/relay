@@ -3,6 +3,7 @@ package org.example.userservice.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -18,7 +19,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwkSetUri("http://127.0.0.1:9000/oauth2/jwks"))
+                        .jwt(Customizer.withDefaults())
                 )
                 .csrf(csrf -> csrf.disable())
                 .build();

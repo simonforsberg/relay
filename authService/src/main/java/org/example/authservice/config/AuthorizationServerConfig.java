@@ -1,4 +1,4 @@
-package org.example.authservice;
+package org.example.authservice.config;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -20,13 +20,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -46,13 +43,13 @@ public class AuthorizationServerConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository(
             PasswordEncoder passwordEncoder,
+            @Value("${auth.clients.gateway-client.secret}") String gatewayClientSecret,
             @Value("${auth.clients.service-client.secret}") String serviceClientSecret
     ) {
-
-        // Klient 1: För BFF/webbläsare
+        // Klient 1: För BFF/webbläsare, använder Authorization Code + PKCE-flöde
         RegisteredClient browserClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway-client")
-                .clientSecret(passwordEncoder.encode("secret"))
+                .clientSecret(passwordEncoder.encode(gatewayClientSecret))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
@@ -65,17 +62,17 @@ public class AuthorizationServerConfig {
                         "user.write"
                 )))
                 .tokenSettings(TokenSettings.builder()
-                        .reuseRefreshTokens(false) // Rotation för säkerhet
+                        .reuseRefreshTokens(false) // Refresh token rotation för säkerhet
                         .build())
                 .build();
 
-        // Klient 2: För intern service-to-service
+        // Klient 2: För intern service-to-service, använder Client Credentials-flöde
         RegisteredClient serviceClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("service-client")
                 .clientSecret(passwordEncoder.encode(serviceClientSecret))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("user.read") // Minimal scope
+                .scope("user.read")
                 .build();
 
         return new InMemoryRegisteredClientRepository(browserClient, serviceClient);
@@ -117,11 +114,6 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
-        return new NimbusJwtEncoder(jwkSource);
-    }
-
-    @Bean
     public JWKSource<SecurityContext> jwkSource() {
         RSAKey rsaKey = generateRsa();
         JWKSet jwkSet = new JWKSet(rsaKey);
@@ -146,39 +138,10 @@ public class AuthorizationServerConfig {
             keyPairGenerator.initialize(2048); // Standard säkerhetsnivå
             keyPair = keyPairGenerator.generateKeyPair();
         } catch (Exception ex) {
-            throw new IllegalStateException(ex);
+            throw new IllegalStateException("Failed to generate RSA key", ex);
         }
         return keyPair;
     }
-
-//    @Bean
-//    public JWKSource<SecurityContext> jwkSource() throws JOSEException {
-//        ECKey ecJwk = generateEc();
-//
-//        JWKSet jwkSet = new JWKSet(ecJwk);
-//        return (selector, context) -> selector.select(jwkSet);
-//    }
-//
-//    public static ECKey generateEc() {
-//        try {
-//            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
-//            // P-256 (secp256r1) → ES256
-//            kpg.initialize(new ECGenParameterSpec("secp256r1"));
-//            KeyPair keyPair = kpg.generateKeyPair();
-//
-//            ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
-//            ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
-//
-//            return new ECKey.Builder(Curve.P_256, publicKey)
-//                    .privateKey(privateKey)
-//                    .keyID(UUID.randomUUID().toString())
-//                    .keyUse(KeyUse.SIGNATURE) // Definiera att den är för signering
-//                    .algorithm(JWSAlgorithm.ES256)
-//                    .build();
-//        } catch (Exception e) {
-//            throw new IllegalStateException(e);
-//        }
-//    }
 
     @Bean
     @Order(1)
@@ -204,7 +167,7 @@ public class AuthorizationServerConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults()); // Visar inloggningssidan
+                .formLogin(Customizer.withDefaults());
 
         return http.build();
     }
