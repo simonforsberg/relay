@@ -1,6 +1,6 @@
 services:
   userdb:
-    image: postgres
+    image: postgres:16
     container_name: userdb
     environment:
       POSTGRES_PASSWORD: postgres
@@ -11,7 +11,7 @@ services:
       - userdb-data:/var/lib/postgresql/data
 
   messagedb:
-    image: postgres
+    image: postgres:16
     container_name: messagedb
     environment:
       POSTGRES_PASSWORD: postgres

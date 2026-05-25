@@ -18,29 +18,22 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final RabbitTemplate rabbitTemplate;
-    private final UserGrpcClient userGrpcClient;
 
     public MessageService(MessageRepository messageRepository,
                           RabbitTemplate rabbitTemplate,
                           UserGrpcClient userGrpcClient) {
         this.messageRepository = messageRepository;
         this.rabbitTemplate = rabbitTemplate;
-        this.userGrpcClient = userGrpcClient;
     }
 
-    public MessageResponse createMessage(MessageRequest request, String senderId) {
-        String resolvedSender = userGrpcClient.getUserByUsername(senderId)
-                .map(user -> user.getUsername())
-                .orElse(senderId);
-
+    public MessageResponse createMessage(MessageRequest request, String senderId, String senderUsername) {
         Message message = new Message();
         message.setContent(request.content());
-        message.setSenderId(resolvedSender);
+        message.setSenderId(senderId);
+        message.setSenderUsername(senderUsername);
 
         Message saved = messageRepository.save(message);
-
         rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, saved.getId().toString());
-
         return toResponse(saved);
     }
 
@@ -67,6 +60,7 @@ public class MessageService {
                 message.getId(),
                 message.getContent(),
                 message.getSenderId(),
+                message.getSenderUsername(),
                 message.getCreatedAt()
         );
     }

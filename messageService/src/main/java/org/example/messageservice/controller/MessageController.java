@@ -29,8 +29,9 @@ public class MessageController {
             @AuthenticationPrincipal Jwt jwt) {
 
         String senderId = jwt.getSubject();
+        String senderUsername = jwt.getClaimAsString("username");
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(messageService.createMessage(request, senderId));
+                .body(messageService.createMessage(request, senderId, senderUsername));
     }
 
     @GetMapping

@@ -86,29 +86,6 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails demo = User.builder()
-                .username("demo")
-                .password(passwordEncoder.encode("demo"))
-                .roles("USER")
-                .build();
-
-        UserDetails alice = User.builder()
-                .username("alice")
-                .password(passwordEncoder.encode("password123"))
-                .roles("USER")
-                .build();
-
-        UserDetails bob = User.builder()
-                .username("bob")
-                .password(passwordEncoder.encode("password123"))
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(demo, alice, bob);
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

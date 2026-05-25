@@ -1,5 +1,6 @@
 package org.example.userservice.service;
 
+import org.example.userservice.dto.UserAuthResponse;
 import org.example.userservice.dto.UserRequest;
 import org.example.userservice.dto.UserResponse;
 import org.example.userservice.model.User;
@@ -46,6 +47,16 @@ public class UserService {
     public Optional<UserResponse> findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .map(this::toResponse);
+    }
+
+    public Optional<UserAuthResponse> findByUsernameWithPassword(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> new UserAuthResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getPassword()
+                ));
     }
 
     public List<UserResponse> findAll() {
