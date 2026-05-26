@@ -68,6 +68,14 @@ public class UserService {
     public Optional<UserResponse> updateUser(UUID id, UserRequest request) {
         return userRepository.findById(id)
                 .map(user -> {
+                    if (!user.getUsername().equals(request.username())
+                            && userRepository.existsByUsername(request.username())) {
+                        throw new IllegalArgumentException("Username already taken: " + request.username());
+                    }
+                    if (!user.getEmail().equals(request.email())
+                            && userRepository.existsByEmail(request.email())) {
+                        throw new IllegalArgumentException("Email already registered: " + request.email());
+                    }
                     user.setUsername(request.username());
                     user.setEmail(request.email());
                     user.setPassword(passwordEncoder.encode(request.password()));
