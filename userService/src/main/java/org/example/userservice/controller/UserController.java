@@ -41,6 +41,20 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @Valid @RequestBody UserRequest request) {
+        return userService.updateUser(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Intern endpoint, används av authService för att hämta användare med hash´at lösenord vid inloggning
     @GetMapping("/by-username")
     public ResponseEntity<UserAuthResponse> getUserByUsername(@RequestParam String username) {
         return userService.findByUsernameWithPassword(username)
@@ -48,6 +62,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Returnerar den inloggade användarens profil baserat på JWT-tokens subject
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Authentication auth) {
         String subject = auth.getName();
@@ -61,11 +76,5 @@ public class UserController {
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
     }
 }

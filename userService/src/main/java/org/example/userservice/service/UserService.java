@@ -65,6 +65,16 @@ public class UserService {
                 .toList();
     }
 
+    public Optional<UserResponse> updateUser(UUID id, UserRequest request) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setUsername(request.username());
+                    user.setEmail(request.email());
+                    user.setPassword(passwordEncoder.encode(request.password()));
+                    return toResponse(userRepository.save(user));
+                });
+    }
+
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
     }
