@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.authservice.dto.UserAuthResponse;
 import org.example.authservice.exception.UserServiceUnavailableException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -19,13 +18,8 @@ public class UserServiceClient {
     private final RestClient restClient;
 
     public UserServiceClient(@Value("${userservice.internal.base-url}") String baseUrl) {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(3000);
-        factory.setReadTimeout(5000);
-
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
-                .requestFactory(factory)
                 .build();
     }
 
