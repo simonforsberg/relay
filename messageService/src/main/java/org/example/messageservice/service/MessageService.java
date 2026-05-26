@@ -20,8 +20,7 @@ public class MessageService {
     private final RabbitTemplate rabbitTemplate;
 
     public MessageService(MessageRepository messageRepository,
-                          RabbitTemplate rabbitTemplate,
-                          UserGrpcClient userGrpcClient) {
+                          RabbitTemplate rabbitTemplate) {
         this.messageRepository = messageRepository;
         this.rabbitTemplate = rabbitTemplate;
     }
