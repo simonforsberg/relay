@@ -54,7 +54,6 @@ public class UserService {
                 .map(user -> new UserAuthResponse(
                         user.getId(),
                         user.getUsername(),
-                        user.getEmail(),
                         user.getPassword()
                 ));
     }

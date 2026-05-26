@@ -24,11 +24,15 @@ public class TokenCustomizerConfig {
         return context -> {
             String username = context.getPrincipal().getName();
 
-            userServiceClient.findByUsername(username).ifPresent(user -> {
-                context.getClaims().subject(user.id().toString());
-                context.getClaims().claim("username", user.username());
-                log.debug("JWT customized: sub={}, username={}", user.id(), user.username());
-            });
+            try {
+                userServiceClient.findByUsername(username).ifPresent(user -> {
+                    context.getClaims().subject(user.id().toString());
+                    context.getClaims().claim("username", user.username());
+                    log.debug("JWT customized: sub={}, username={}", user.id(), user.username());
+                });
+            } catch (Exception ex) {
+                log.warn("JWT customization skipped for principal={}", username, ex);
+            }
         };
     }
 }
