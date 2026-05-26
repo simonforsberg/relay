@@ -1,10 +1,11 @@
 package org.example.userservice.service;
 
+import org.example.userservice.dto.UserAuthResponse;
 import org.example.userservice.dto.UserRequest;
 import org.example.userservice.dto.UserResponse;
 import org.example.userservice.model.User;
 import org.example.userservice.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +16,11 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponse createUser(UserRequest request) {
@@ -46,6 +47,15 @@ public class UserService {
     public Optional<UserResponse> findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .map(this::toResponse);
+    }
+
+    public Optional<UserAuthResponse> findByUsernameWithPassword(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> new UserAuthResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getPassword()
+                ));
     }
 
     public List<UserResponse> findAll() {

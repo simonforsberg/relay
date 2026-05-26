@@ -75,8 +75,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0.35; }
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.35;
+            }
         }
 
         /* ── Message list ── */
@@ -285,8 +289,8 @@
             }
             if (!res.ok) throw new Error(res.status);
             const user = await res.json();
-            currentUser = user.username ?? user.sub ?? user.email ?? 'unknown';
-            document.getElementById('who').textContent = currentUser;
+            currentUser = user;
+            document.getElementById('who').textContent = user.username;
         } catch (e) {
             showError('Could not fetch user: ' + e.message);
             return;
@@ -319,11 +323,11 @@
     function renderMessage(msg) {
         const list = document.getElementById('messages');
         const div = document.createElement('div');
-        const isOwn = msg.senderId === currentUser || msg.sender === currentUser;
+        const isOwn = msg.senderId === currentUser?.id || msg.senderUsername === currentUser?.username;
         div.className = 'msg' + (isOwn ? ' own' : '');
 
-        const sender = msg.senderId ?? msg.sender ?? 'unknown';
-        const body   = msg.content ?? msg.text ?? msg.body ?? '';
+        const sender = msg.senderUsername ?? msg.senderId ?? msg.sender ?? 'unknown';
+        const body = msg.content ?? msg.text ?? msg.body ?? '';
         const time = msg.createdAt
             ? new Date(msg.createdAt).toLocaleString('sv-SE', {
                 year: 'numeric',
@@ -345,16 +349,16 @@
 
     async function sendMessage() {
         const input = document.getElementById('input');
-        const btn   = document.getElementById('send-btn');
-        const text  = input.value.trim();
+        const btn = document.getElementById('send-btn');
+        const text = input.value.trim();
         if (!text) return;
 
         btn.disabled = true;
         try {
             const res = await fetch('/api/messages', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: text })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({content: text})
             });
             if (!handleResponse(res)) return;
             if (!res.ok) throw new Error(res.status);

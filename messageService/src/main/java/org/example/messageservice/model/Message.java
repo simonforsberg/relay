@@ -25,6 +25,9 @@ public class Message {
     @Column(nullable = false)
     private String senderId;
 
+    @Column(nullable = false)
+    private String senderUsername;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

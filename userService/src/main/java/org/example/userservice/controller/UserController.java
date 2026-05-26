@@ -1,6 +1,7 @@
 package org.example.userservice.controller;
 
 import jakarta.validation.Valid;
+import org.example.userservice.dto.UserAuthResponse;
 import org.example.userservice.dto.UserRequest;
 import org.example.userservice.dto.UserResponse;
 import org.example.userservice.service.UserService;
@@ -40,12 +41,26 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMe(Authentication auth) {
-        String username = auth.getName();
-        return userService.findByUsername(username)
+    @GetMapping("/by-username")
+    public ResponseEntity<UserAuthResponse> getUserByUsername(@RequestParam String username) {
+        return userService.findByUsernameWithPassword(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe(Authentication auth) {
+        String subject = auth.getName();
+        try {
+            UUID id = UUID.fromString(subject);
+            return userService.findById(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return userService.findByUsername(subject)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        }
     }
 
     @DeleteMapping("/{id}")

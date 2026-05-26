@@ -29,8 +29,12 @@ public class MessageController {
             @AuthenticationPrincipal Jwt jwt) {
 
         String senderId = jwt.getSubject();
+        String senderUsername = jwt.getClaimAsString("username");
+        if (senderUsername == null || senderUsername.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(messageService.createMessage(request, senderId));
+                .body(messageService.createMessage(request, senderId, senderUsername));
     }
 
     @GetMapping

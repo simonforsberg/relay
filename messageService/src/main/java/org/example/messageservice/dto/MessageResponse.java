@@ -7,6 +7,7 @@ public record MessageResponse(
         UUID id,
         String content,
         String senderId,
+        String senderUsername,
         LocalDateTime createdAt
 ) {
 }
