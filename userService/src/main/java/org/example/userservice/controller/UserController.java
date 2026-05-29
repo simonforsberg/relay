@@ -62,13 +62,6 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/by-email")
-    public ResponseEntity<UserResponse> getByEmail(@RequestParam String email) {
-        return userService.findByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     // Returnerar den inloggade användarens profil baserat på JWT-tokens subject
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Authentication auth) {
@@ -83,5 +76,10 @@ public class UserController {
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUsers(@RequestParam String q) {
+        return ResponseEntity.ok(userService.search(q));
     }
 }

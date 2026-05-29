@@ -733,31 +733,13 @@
     }
 
     async function searchUser() {
-        const searchterm = document.getElementById('search-input').value.trim();
-        if (!searchterm) return;
+        const q = document.getElementById('search-input').value.trim();
+        if (!q) return;
         try {
-            if (searchterm.includes('@')){
-                const r1 = await fetch(`/api/users/by-email?email=${encodeURIComponent(searchterm)}`);
-                if (r1.status === 404) {
-                    renderUsers([]);
-                    return;
-                }
-                renderUsers([await r1.json()]);
-            }
-            else {  // by-username returns only id+username; follow up with GET by ID for full profile
-                const r1 = await fetch(`/api/users/by-username?username=${encodeURIComponent(searchterm)}`);
-                if (r1.status === 404) {
-                    renderUsers([]);
-                    return;
-                }
-                if (!handleResponse(r1)) return;
-                const partial = await r1.json();
-
-                const r2 = await fetch(`/api/users/${partial.id}`);
-                if (!handleResponse(r2)) return;
-                if (!r2.ok) throw new Error(r2.status);
-                renderUsers([await r2.json()]);
-            }
+            const res = await fetch(`/api/users/search?q=${encodeURIComponent(q)}`);
+            if (!handleResponse(res)) return;
+            if (!res.ok) throw new Error(res.status);
+            renderUsers(await res.json());
         } catch (e) {
             showError('Search failed: ' + e.message);
         }

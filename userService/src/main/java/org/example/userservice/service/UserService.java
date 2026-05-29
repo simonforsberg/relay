@@ -58,9 +58,12 @@ public class UserService {
                 ));
     }
 
-    public Optional<UserResponse> findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(this::toResponse);
+    public List<UserResponse> search(String query) {
+        return userRepository
+                .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public List<UserResponse> findAll() {
