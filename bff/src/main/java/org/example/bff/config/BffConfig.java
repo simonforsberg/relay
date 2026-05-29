@@ -56,6 +56,7 @@ public class BffConfig {
                 .path("/api/users", builder -> builder
                         .GET("/**", http())
                         .POST("/**", http())
+                        .PUT("/**", http())
                         .DELETE("/**", http())
                 )
                 .before(uri(userServiceUrl))
