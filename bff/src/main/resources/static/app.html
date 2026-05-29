@@ -236,6 +236,7 @@
         }
 
         .user-table tr:last-child td { border-bottom: none; }
+        .user-table td:last-child { text-align: right; }
         .user-table .mono { font-family: var(--mono); font-size: 0.8rem; }
         .user-table .muted { color: var(--muted); }
 
@@ -433,7 +434,7 @@
         <span class="dot"></span>
         <span id="who"></span>
     </div>
-    <button id="users-toggle-btn" class="hdr-btn">show users</button>
+    <button id="users-toggle-btn" class="hdr-btn">show all users</button>
     <form action="/logout" method="post">
         <button type="submit" class="hdr-btn">log out</button>
     </form>
@@ -449,12 +450,12 @@
         <div id="messages"></div>
     </div>
 
-    <!-- Users view -->
+    <!-- Users view / Search view -->
     <div id="users-view" class="hidden">
         <div class="search-bar">
-            <input id="search-input" type="text" placeholder="search by username…"/>
+            <input id="search-input" type="text" placeholder="search by username or e-mail..."/>
             <button id="search-btn" class="action-btn">search</button>
-            <button id="show-all-btn" class="action-btn">show all</button>
+            <button id="clear-btn" class="action-btn">clear</button>
         </div>
         <div id="users-list"></div>
     </div>
@@ -541,7 +542,7 @@
             usersView.classList.add('hidden');
             compose.classList.remove('hidden');
             btn.classList.remove('active');
-            btn.textContent = 'show users';
+            btn.textContent = 'show all users';
         }
     });
 
@@ -732,19 +733,31 @@
     }
 
     async function searchUser() {
-        const username = document.getElementById('search-input').value.trim();
-        if (!username) return;
+        const searchterm = document.getElementById('search-input').value.trim();
+        if (!searchterm) return;
         try {
-            // by-username returns only id+username; follow up with GET by ID for full profile
-            const r1 = await fetch(`/api/users/by-username?username=${encodeURIComponent(username)}`);
-            if (r1.status === 404) { renderUsers([]); return; }
-            if (!handleResponse(r1)) return;
-            const partial = await r1.json();
+            if (searchterm.includes('@')){
+                const r1 = await fetch(`/api/users/by-email?email=${encodeURIComponent(searchterm)}`);
+                if (r1.status === 404) {
+                    renderUsers([]);
+                    return;
+                }
+                renderUsers([await r1.json()]);
+            }
+            else {  // by-username returns only id+username; follow up with GET by ID for full profile
+                const r1 = await fetch(`/api/users/by-username?username=${encodeURIComponent(searchterm)}`);
+                if (r1.status === 404) {
+                    renderUsers([]);
+                    return;
+                }
+                if (!handleResponse(r1)) return;
+                const partial = await r1.json();
 
-            const r2 = await fetch(`/api/users/${partial.id}`);
-            if (!handleResponse(r2)) return;
-            if (!r2.ok) throw new Error(r2.status);
-            renderUsers([await r2.json()]);
+                const r2 = await fetch(`/api/users/${partial.id}`);
+                if (!handleResponse(r2)) return;
+                if (!r2.ok) throw new Error(r2.status);
+                renderUsers([await r2.json()]);
+            }
         } catch (e) {
             showError('Search failed: ' + e.message);
         }
@@ -824,7 +837,7 @@
     document.getElementById('search-input').addEventListener('keydown', e => {
         if (e.key === 'Enter') searchUser();
     });
-    document.getElementById('show-all-btn').addEventListener('click', () => {
+    document.getElementById('clear-btn').addEventListener('click', () => {
         document.getElementById('search-input').value = '';
         loadUsers();
     });

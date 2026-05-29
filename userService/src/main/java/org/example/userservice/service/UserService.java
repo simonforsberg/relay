@@ -58,6 +58,11 @@ public class UserService {
                 ));
     }
 
+    public Optional<UserResponse> findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(this::toResponse);
+    }
+
     public List<UserResponse> findAll() {
         return userRepository.findAll()
                 .stream()
