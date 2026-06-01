@@ -46,7 +46,7 @@ public class AuthorizationServerConfig {
             @Value("${auth.clients.gateway-client.secret}") String gatewayClientSecret,
             @Value("${auth.clients.service-client.secret}") String serviceClientSecret
     ) {
-        // Klient 1: För BFF/webbläsare, använder Authorization Code + PKCE-flöde
+        // Klient 1: För BFF, använder Authorization Code + OIDC-flödet och Refresh Tokens.
         RegisteredClient browserClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway-client")
                 .clientSecret(passwordEncoder.encode(gatewayClientSecret))

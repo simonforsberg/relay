@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Relay — Create account</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            padding: 10px 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        input::placeholder {
+            color: var(--muted);
+        }
+
+        .error {
+            display: none;
+            background: #3b1212;
+            border: 1px solid #7f1d1d;
+            color: #fca5a5;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .btn-submit {
+            background: var(--accent);
+            color: #0a1a0d;
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-top: 4px;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent2);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .back-link {
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            color: var(--muted);
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="card-header">
+        <span class="logo">relay/</span>
+        <span class="card-title">create account</span>
+    </div>
+    <form id="register-form">
+        <label for="username" class="sr-only">Username</label>
+        <input id="username" type="text" placeholder="username" required autocomplete="username"/>
+
+        <label for="email" class="sr-only">Email</label>
+        <input id="email" type="email" placeholder="email" required autocomplete="email"/>
+
+        <label for="password" class="sr-only">Password</label>
+        <input id="password" type="password" placeholder="password (min. 8 characters)"
+               minlength="8" required autocomplete="new-password"/>
+
+        <div id="error" class="error" role="alert" aria-live="assertive"></div>
+        <button id="submit-btn" type="submit" class="btn-submit">create account</button>
+    </form>
+    <a href="/" class="back-link">← back</a>
+</div>
+
+<script>
+    document.getElementById('register-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        const errEl = document.getElementById('error');
+        errEl.classList.remove('show');
+        btn.disabled = true;
+        btn.textContent = 'creating…';
+
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: document.getElementById('username').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value
+                })
+            });
+
+            if (res.ok) {
+                // Account created, redirect user to the login flow
+                window.location.href = '/oauth2/authorization/authservice';
+                return;
+            }
+
+            const text = await res.text();
+            errEl.textContent = res.status === 409
+                ? (text || 'Username or email already taken.')
+                : (text || 'Please check your input and try again.');
+            errEl.classList.add('show');
+        } catch {
+            errEl.textContent = 'Could not reach the server.';
+            errEl.classList.add('show');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'create account';
+        }
+    });
+</script>
+</body>
+</html>

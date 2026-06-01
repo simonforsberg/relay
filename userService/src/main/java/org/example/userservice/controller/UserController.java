@@ -77,4 +77,9 @@ public class UserController {
                     .orElse(ResponseEntity.notFound().build());
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUsers(@RequestParam String q) {
+        return ResponseEntity.ok(userService.search(q));
+    }
 }

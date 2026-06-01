@@ -58,6 +58,18 @@ public class UserService {
                 ));
     }
 
+    public List<UserResponse> search(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        String normalized = query.trim();
+        return userRepository
+                .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(normalized, normalized)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public List<UserResponse> findAll() {
         return userRepository.findAll()
                 .stream()
