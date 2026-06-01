@@ -1,6 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 :root {
     --bg: #0e0f11;
@@ -21,7 +25,9 @@ body {
     height: 100dvh;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 .sr-only {
     position: absolute;
@@ -29,7 +35,7 @@ body {
     height: 1px;
     padding: 0;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
 }
