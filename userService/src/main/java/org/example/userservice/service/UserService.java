@@ -59,8 +59,12 @@ public class UserService {
     }
 
     public List<UserResponse> search(String query) {
+        String normalized = query.trim();
+        if (normalized.isEmpty()) {
+            return List.of();
+        }
         return userRepository
-                .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query)
+                .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(normalized, normalized)
                 .stream()
                 .map(this::toResponse)
                 .toList();

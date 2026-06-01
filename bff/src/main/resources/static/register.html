@@ -139,6 +139,17 @@
         .back-link:hover {
             color: var(--accent);
         }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
     </style>
 </head>
 <body>
@@ -148,11 +159,17 @@
         <span class="card-title">create account</span>
     </div>
     <form id="register-form">
+        <label for="username" class="sr-only">Username</label>
         <input id="username" type="text" placeholder="username" required autocomplete="username"/>
+
+        <label for="email" class="sr-only">Email</label>
         <input id="email" type="email" placeholder="email" required autocomplete="email"/>
+
+        <label for="password" class="sr-only">Password</label>
         <input id="password" type="password" placeholder="password (min. 8 characters)"
                minlength="8" required autocomplete="new-password"/>
-        <div id="error" class="error"></div>
+
+        <div id="error" class="error" role="alert" aria-live="assertive"></div>
         <button id="submit-btn" type="submit" class="btn-submit">create account</button>
     </form>
     <a href="/" class="back-link">← back</a>
