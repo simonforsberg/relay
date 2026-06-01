@@ -55,7 +55,7 @@ public class BffConfig {
     private void configureAuthorization(AuthorizeHttpRequestsConfigurer
                                                 <HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         auth
-                .requestMatchers(HttpMethod.GET, "/", "/index.html", "/register.html").permitAll()
+                .requestMatchers(HttpMethod.GET, "/", "/index.html", "/register.html", "/css/style.css").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // Registrering kräver ingen inloggning
                 .anyRequest().authenticated();
     }

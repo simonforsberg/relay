@@ -4,40 +4,12 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Relay Chat</title>
+    <link rel="stylesheet" href="/css/style.css"/>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #0e0f11;
-            --surface: #16181c;
-            --border: #2a2d33;
-            --accent: #4ade80;
-            --accent2: #86efac;
-            --muted: #6b7280;
-            --text: #e5e7eb;
-            --radius: 6px;
-            --mono: 'IBM Plex Mono', monospace;
-        }
-
         body {
-            font-family: var(--mono);
-            background: var(--bg);
-            color: var(--text);
-            height: 100dvh;
             display: grid;
             grid-template-rows: auto 1fr auto;
             grid-template-columns: 1fr;
-        }
-
-        /* ── Utilities ── */
-        .hidden {
-            display: none !important;
         }
 
         /* ── Header ── */
@@ -626,7 +598,7 @@
     // ── State ──────────────────────────────────────────────────────────────
     let currentUser = null;
     let allMessages = [];
-    let senderFilter = null; // { id, username } or null
+    let senderFilter = null;
     let editingUserId = null;
 
     // ── Init ───────────────────────────────────────────────────────────────
