@@ -691,12 +691,10 @@
         const senderName = msg.senderUsername ?? msg.senderId ?? 'unknown';
 
         const senderEl = document.createElement('div');
-        senderEl.className = 'sender' + (!isOwn ? ' clickable' : '');
+        senderEl.className = 'sender clickable' + (isOwn ? ' own-sender' : '');
         senderEl.textContent = senderName;
-        if (!isOwn) {
             senderEl.title = `Filter by ${senderName}`;
             senderEl.addEventListener('click', () => filterBySender(msg.senderId, senderName));
-        }
 
         const bodyEl = document.createElement('div');
         bodyEl.className = 'body';
