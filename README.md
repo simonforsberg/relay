@@ -22,7 +22,7 @@ Built with **Java 25**, **Spring Boot 4**, **Maven**, and **Docker**.
 
 ## Architecture
 
-```
+```text
 Client
   │
   ▼
@@ -146,7 +146,7 @@ All other endpoints go through the BFF and require the session cookie:
 
 **Register a user** — `POST /api/users`
 ```http
-POST http://localhost:8080/api/users
+POST http://localhost:8081/api/users
 Content-Type: application/json
 
 {
