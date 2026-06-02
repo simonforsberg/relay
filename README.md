@@ -20,6 +20,31 @@ Built with **Java 25**, **Spring Boot 4**, **Maven**, and **Docker**.
 
 ---
 
+## Architecture
+
+```
+Client
+  │
+  ▼
+BFF (8080) ──── OAuth2 ────► AuthService (9000)
+  │                               │
+  │ HTTP                          │ REST (user lookup)
+  │                               ▼
+  ├──────────────────────► UserService (8081, gRPC 9091)
+  │                               ▲
+  │ HTTP                          │ gRPC
+  │                               │
+  └──────────────────────► MessageService (8082) ──► RabbitMQ
+```
+
+- **BFF** is the single entry point — it authenticates requests via OAuth2 and proxies them to the appropriate service.
+- **AuthService** handles login and token issuance, and calls UserService over REST to look up users.
+- **MessageService** calls UserService over gRPC to resolve user data when handling messages.
+- **UserService** exposes both a REST API (port 8081, consumed by BFF and AuthService) and a gRPC interface (port 9091, consumed by MessageService).
+- **MessageService** publishes an event to RabbitMQ whenever a message is saved.
+
+---
+
 ## Requirements
 
 - **Java 25**
