@@ -26,18 +26,19 @@ Built with **Java 25**, **Spring Boot 4**, **Maven**, and **Docker**.
 Client
   │
   ▼
-BFF (8080) ──── OAuth2 ────► AuthService (9000)
-  │                               │
-  │ HTTP                          │ REST (user lookup)
-  │                               ▼
-  ├──────────────────────► UserService (8081, gRPC 9091) ──► userdb
-  │                               ▲
-  │ HTTP                          │ gRPC
-  │                               │
-  └──────────────────────► MessageService (8082) ───────► messagedb
-                                  │
-                                  ▼
-                               RabbitMQ
+BFF (8080) ──── OAuth2 ───► AuthService (9000)
+  │                              │
+  │ HTTP                         │ REST (user lookup)
+  │                              ▼
+  ├───────────────────────► UserService (8081, gRPC 9091) ──► userdb
+  │                              ▲
+  │ HTTP                         │ gRPC
+  │                              │
+  └───────────────────────► MessageService (8082) ──────────► messagedb
+                                 │
+                                 │
+                                 ▼
+                              RabbitMQ
 ```
 
 - **BFF** is the single entry point — it authenticates requests via OAuth2 and proxies them to the appropriate service.
