@@ -1,6 +1,81 @@
-# Relay
+# relay/
 
-A distributed chat application with **BFF**, **microservices**, **gRPC** and **event-based architecture**.
+A distributed real-time chat application built around a microservice architecture, with OAuth2 authentication, gRPC inter-service communication, and a BFF gateway layer.
+
+Built with **Java 25**, **Spring Boot 4**, **Maven**, and **Docker**.
+
+---
+
+## Features
+
+- **Microservice Architecture**: Independently deployable services — BFF, AuthService, UserService, and MessageService.
+- **BFF Gateway**: Single entry point for clients using Spring Cloud Gateway with session-based OAuth2 authentication.
+- **gRPC Communication**: Typed, efficient inter-service communication using Spring gRPC.
+- **OAuth2 Authorization Server**: Dedicated AuthService handling login, token issuance, and session management.
+- **RESTful API**: Clean API endpoints for users and messages, exposed through the BFF.
+- **PostgreSQL Storage**: Persistent storage for users and messages via Docker-managed Postgres instances.
+- **Event-driven Messaging**: MessageService publishes to a RabbitMQ queue (`message-published`) whenever a message is saved, enabling downstream consumers to react to new messages asynchronously.
+- **Docker Compose**: One-command local setup with all services and databases containerized.
+- **Demo User**: A `demo`/`demo` user is created automatically on startup. Log in straight away without registering.
+
+---
+
+## Requirements
+
+- **Java 25**
+- **Maven**
+- **Docker** and **Docker Compose**
+
+## Setup & Running
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/simonforsberg/relay.git
+cd relay
+```
+
+### 2. Configure environment variables
+
+The `dev` profile is active by default in all services and uses pre-configured local values. Override with `SPRING_PROFILES_ACTIVE` if needed.
+
+Copy `.env.example` to `.env` and fill in the values — Docker Compose reads this file automatically.
+
+```bash
+cp .env.example .env
+```
+
+`POSTGRES_PASSWORD` is always required; set it to `postgres` when using the `dev` profile.
+
+
+### 3. Start infrastructure
+```bash
+docker compose up -d
+```
+
+This starts PostgreSQL (userdb on `5432`, messagedb on `5433`) and RabbitMQ (`5672`, management UI on `15672`).
+
+### 4. Run the services
+
+Start each service with the `dev` profile active (set via `SPRING_PROFILES_ACTIVE=dev` or run configuration):
+
+- `AuthServiceApplication` — port `9000`
+- `UserServiceApplication` — port `8081`
+- `MessageServiceApplication` — port `8082`
+- `BffApplication` — port `8080`
+
+**IDE:** Run each main class directly with the `dev` profile.
+
+**Maven:**
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+### 5. Access the application
+
+- **Chat UI**: [http://localhost:8080](http://localhost:8080)
+- **RabbitMQ Management**: [http://localhost:15672](http://localhost:15672) (`guest`/`guest`)
+
+---
 
 ## Testing the API
 
@@ -11,7 +86,7 @@ The API can be tested using [Insomnia](https://insomnia.rest/) or any HTTP clien
 The BFF (`localhost:8080`) uses session-based OAuth2 — all requests through it
 require a valid session cookie. To get one:
 
-1. Log into the chat at `http://localhost:8080`
+1. Log into the chat at `http://localhost:8080` with demo user credentials (`demo`/`demo`)
 2. Open DevTools → Network → click any request to `localhost:8080`
 3. Copy the `JSESSIONID` value from the Cookie header
 4. Add it to your requests: `Cookie: JSESSIONID=<value>`
