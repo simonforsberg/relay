@@ -16,6 +16,7 @@ Built with **Java 25**, **Spring Boot 4**, **Maven**, and **Docker**.
 - **PostgreSQL Storage**: Persistent storage for users and messages via Docker-managed Postgres instances.
 - **Event-driven Messaging**: MessageService publishes to a RabbitMQ queue (`message-published`) whenever a message is saved, enabling downstream consumers to react to new messages asynchronously.
 - **Docker Compose**: One-command local setup with all services and databases containerized.
+- **Minimalistic Chat UI**: Simple web interface with login, registration, and a real-time chat view served by the BFF.
 - **Demo User**: A `demo`/`demo` user is created automatically on startup. Log in straight away without registering.
 
 ---
