@@ -30,11 +30,14 @@ BFF (8080) ──── OAuth2 ────► AuthService (9000)
   │                               │
   │ HTTP                          │ REST (user lookup)
   │                               ▼
-  ├──────────────────────► UserService (8081, gRPC 9091)
+  ├──────────────────────► UserService (8081, gRPC 9091) ──► userdb
   │                               ▲
   │ HTTP                          │ gRPC
   │                               │
-  └──────────────────────► MessageService (8082) ──► RabbitMQ
+  └──────────────────────► MessageService (8082) ───────► messagedb
+                                  │
+                                  ▼
+                               RabbitMQ
 ```
 
 - **BFF** is the single entry point — it authenticates requests via OAuth2 and proxies them to the appropriate service.
@@ -42,6 +45,7 @@ BFF (8080) ──── OAuth2 ────► AuthService (9000)
 - **MessageService** calls UserService over gRPC to resolve user data when handling messages.
 - **UserService** exposes both a REST API (port 8081, consumed by BFF and AuthService) and a gRPC interface (port 9091, consumed by MessageService).
 - **MessageService** publishes an event to RabbitMQ whenever a message is saved.
+- **UserService** and **MessageService** each own a dedicated PostgreSQL database (`userdb` and `messagedb`), following the database-per-service pattern.
 
 ---
 
