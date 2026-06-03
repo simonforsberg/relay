@@ -79,9 +79,11 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
+    public AuthorizationServerSettings authorizationServerSettings(
+            @Value("${auth.issuer-uri}") String issuerUri
+    ) {
         return AuthorizationServerSettings.builder()
-                .issuer("http://127.0.0.1:9000")
+                .issuer(issuerUri)
                 .build();
     }
 
