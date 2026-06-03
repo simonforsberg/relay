@@ -1,6 +1,6 @@
 # relay/
 
-A distributed real-time chat application built around a microservice architecture, with OAuth2 authentication, gRPC inter-service communication, and a BFF gateway layer.
+A distributed real-time chat application built around a microservice architecture, with OAuth2 authentication, gRPC inter-service communication, event-driven messaging via RabbitMQ and a BFF gateway layer.
 
 Built with **Java 25**, **Spring Boot 4**, **Maven**, and **Docker**.
 
