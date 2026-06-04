@@ -4,6 +4,7 @@ import org.example.messageservice.config.RabbitMQConfig;
 import org.example.messageservice.dto.MessageRequest;
 import org.example.messageservice.dto.MessageResponse;
 import org.example.messageservice.grpc.UserGrpcClient;
+import org.example.messageservice.grpc.UserResponse;
 import org.example.messageservice.model.Message;
 import org.example.messageservice.repository.MessageRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -59,7 +60,7 @@ public class MessageService {
 
     private MessageResponse toResponse(Message message) {
         String username = userGrpcClient.getUserByUsername(message.getSenderUsername())
-                .map(u -> u.getUsername())
+                .map(UserResponse::getUsername)
                 .orElse(message.getSenderUsername());
 
         return new MessageResponse(
