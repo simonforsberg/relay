@@ -4,6 +4,7 @@ import org.example.messageservice.config.RabbitMQConfig;
 import org.example.messageservice.dto.MessageRequest;
 import org.example.messageservice.dto.MessageResponse;
 import org.example.messageservice.grpc.UserGrpcClient;
+import org.example.messageservice.grpc.UserResponse;
 import org.example.messageservice.model.Message;
 import org.example.messageservice.repository.MessageRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,11 +19,14 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final UserGrpcClient userGrpcClient;
 
     public MessageService(MessageRepository messageRepository,
-                          RabbitTemplate rabbitTemplate) {
+                          RabbitTemplate rabbitTemplate,
+                          UserGrpcClient userGrpcClient) {
         this.messageRepository = messageRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.userGrpcClient = userGrpcClient;
     }
 
     public MessageResponse createMessage(MessageRequest request, String senderId, String senderUsername) {
@@ -55,11 +59,15 @@ public class MessageService {
     }
 
     private MessageResponse toResponse(Message message) {
+        String username = userGrpcClient.getUserByUsername(message.getSenderUsername())
+                .map(UserResponse::getUsername)
+                .orElse(message.getSenderUsername());
+
         return new MessageResponse(
                 message.getId(),
                 message.getContent(),
                 message.getSenderId(),
-                message.getSenderUsername(),
+                username,
                 message.getCreatedAt()
         );
     }

@@ -52,7 +52,7 @@ public class UserGrpcClient {
                 return Optional.empty();
             }
             log.error("gRPC getUserByUsername({}) failed: {}", username, e.getStatus(), e);
-            throw e;
+            return Optional.empty(); // Fallback till lagrat username
         }
     }
 }
