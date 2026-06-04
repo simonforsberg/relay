@@ -18,11 +18,14 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final UserGrpcClient userGrpcClient;
 
     public MessageService(MessageRepository messageRepository,
-                          RabbitTemplate rabbitTemplate) {
+                          RabbitTemplate rabbitTemplate,
+                          UserGrpcClient userGrpcClient) {
         this.messageRepository = messageRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.userGrpcClient = userGrpcClient;
     }
 
     public MessageResponse createMessage(MessageRequest request, String senderId, String senderUsername) {
@@ -55,11 +58,15 @@ public class MessageService {
     }
 
     private MessageResponse toResponse(Message message) {
+        String username = userGrpcClient.getUserByUsername(message.getSenderUsername())
+                .map(u -> u.getUsername())
+                .orElse(message.getSenderUsername());
+
         return new MessageResponse(
                 message.getId(),
                 message.getContent(),
                 message.getSenderId(),
-                message.getSenderUsername(),
+                username,
                 message.getCreatedAt()
         );
     }
